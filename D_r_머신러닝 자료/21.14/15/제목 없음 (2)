@@ -1,0 +1,22 @@
+
+str(object = iris)
+print(x = iris$Species)
+
+# 형변환
+# 강제변환 coercion
+
+a <- 1L
+class(x = a)
+a <- c(a, 2)
+class(x = a)
+a <- c(a, '3')
+class(x = a)
+
+
+a <- c('a', 'b', 'c', 'c', 'a', 'b')
+print(x = a)
+
+a <- as.factor(x = a)
+print(x = a)
+
+a <- c(a, TRUE, FALSE)
