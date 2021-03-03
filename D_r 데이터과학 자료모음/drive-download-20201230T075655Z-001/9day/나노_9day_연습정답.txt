@@ -1,0 +1,64 @@
+## 연습문제 풀어보기
+
+library(openxlsx)
+library(lubridate)
+subway_2017 = read.xlsx('subway_1701_1709.xlsx')
+names(subway_2017)[6:25] <- paste0('H', substr(names(subway_2017)[6:25], 1, 2))
+
+
+#  subway_2017데이터를 활용해서 요약 시각화를 진행하여라
+#1. gather을 사용해서 H05부터 H24까지 시간, 고객 변수명으로 데이터 변형하시오
+#2. facet_grid를 사용해서 시간별 고객의 합을 월별로 따라로 그리시오 (1,2,3,4월)
+
+## month를 사용해서 월 변수를 만들어야 한다.
+
+subway2 <- gather(subway_2017,"시간","고객",H05:H24)
+subway2 %>% 
+  mutate(month = month(날짜)) %>%
+  filter(month %in% c(1,2,3,4)) %>%
+  group_by(month, 시간) %>% 
+  summarise(SUM = sum(고객)) %>% 
+  arrange(desc(SUM)) %>%
+  ggplot(aes(x=시간,y=SUM,fill=factor(month))) + geom_bar(stat="identity") + facet_grid(~month)
+
+
+
+#######################
+#### 코드 작성
+
+k11 <- kk %>%
+  group_by(시군구) %>%
+  summarise(주문건수 = n(),
+                통화합계 = sum(통화건수))
+
+# 건과 총통화 상관관계 확인
+library(PerformanceAnalytics)
+chart.Correlation(k11[,2:3], histogram=TRUE, pch=19)
+
+# 건당 통화 합계 계산
+
+k11 %>%
+  mutate(건당통화 = 통화합계 / 주문건수) %>%
+  arrange(desc(건당통화))
+
+k11 %>%
+  mutate(건당통화 = 통화합계 / 주문건수) %>%
+  arrange(desc(건당통화)) %>%
+  ggplot(aes(x=시군구, y=통화합계, fill=건당통화)) +
+  geom_bar(stat = "identity")
+
+# 통화합계가 20000 이상인 건당 통화 확인
+k11 %>%
+  mutate(건당통화 = 통화합계 / 주문건수) %>%
+  arrange(desc(건당통화)) %>%
+  filter(통화합계>=20000)
+
+k11 %>%
+  mutate(건당통화 = 통화합계 / 주문건수) %>%
+  arrange(desc(건당통화)) %>%
+  filter(통화합계>=20000) %>%
+  ggplot(aes(x=시군구, y=통화합계, fill=건당통화)) +
+  geom_bar(stat = "identity")
+
+
+#######################

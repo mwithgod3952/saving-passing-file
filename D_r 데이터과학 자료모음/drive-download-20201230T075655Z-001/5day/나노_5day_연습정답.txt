@@ -1,0 +1,131 @@
+##### 연습문제!
+
+#문제1
+# mutate를 사용해 delay라는 변수를 만들고 오름차순으로 정렬후 상위 20개의 평균을 구하시오
+# delay = ArrDelay - DepDelay
+
+hflights %>%
+  mutate(delay = ArrDelay - DepDelay) %>% 
+  arrange(delay) %>%
+  head(20) %>%
+  summarise(mean = mean(delay))
+
+#문제2
+# 비행편수(TailNum)가 20편 이상, 평균 비행거리가 2000마일 이상 평균 연착시간의 평균을 구하시오
+# 비행거리 : Distance
+# 연착시간 : ArrDelay
+
+hflights %>%
+  group_by(TailNum) %>%
+  dplyr::summarise(num = n(),
+            dist = mean(Distance,na.rm = T),
+            delay = mean(ArrDelay,na.rm = T)) %>%
+  filter(num>=20 , dist >= 1000) %>%
+  summarise(mean = mean(delay))
+
+
+#############################################
+######################## 연습문제 #############################
+
+# (실습) gather( ) 함수를 활용하여 H05부터 H24까지 변수를 모아
+# '시간대'와 '승객수'으로 구분하는 데이터 subway2 만들기
+subway2 = gather(subway_2017, 시간대, 승객수, H05:H24)
+
+
+## 위에서 만든 subway2 데이터와 dplyr 패키지를 활용하여
+
+# 역명/시간대별 전체 승객수 합계 계산 (승객수 합계의 내림차순으로 정렬)
+subway2 %>% 
+  group_by(역명, 시간대) %>% 
+  summarise(SUM = sum(승객수)) %>% 
+  arrange(desc(SUM))
+
+# 위의 결과를 spread( ) 함수를 활용해서 표 형태로 변환
+subway2 %>% 
+  group_by(역명, 시간대) %>% 
+  summarise(SUM = sum(승객수)) %>% 
+  spread(시간대, SUM)
+
+# 역명/시간대/구분별 전체 승객수 합계 계산
+subway2 %>% 
+  group_by(역명, 시간대, 구분) %>% 
+  summarise(SUM = sum(승객수)) %>% 
+  arrange(desc(SUM))
+
+# 2월 한달간 역명/시간대/구분별 전체 승객수 합계 계산
+subway2 %>% 
+  filter(월==2) %>% 
+  group_by(역명, 시간대, 구분) %>% 
+  summarise(SUM = sum(승객수)) %>% 
+  arrange(desc(SUM))
+
+
+#############################################
+### 연습해보기
+
+# 문제 1
+# words를 모두 대문자로 바꾼 상태에서 'AA'를 포함한 단어의 개수는 총 몇개이며 어떤단어들이 있는가?
+
+sum(str_detect(str_to_upper(words), "AB")) #8개
+str_to_upper(words)[str_which(str_to_upper(words),"AB")] #단어 확인
+
+# 문제 2
+# words에서 "b"를 "a"로 모두 바꾸고 "aa"를 포함하는 단어 개수는?
+sum(str_detect(str_replace_all(words,"b","a"), "aa")) #19개
+
+
+# 문제 3
+# words에서 "e"의 수는 전체 합과 평균은 몇인가?
+sum(str_count(words,"e"))
+mean(str_count(words,"e"))
+
+
+#############################################
+##############################
+### 연습해보기 날짜 연습해보기
+head(subway_2017)
+summary(subway_2017$날짜)
+min(subway_2017$날짜)
+
+# 문제1
+# (실습) gather( ) 함수를 활용하여 H05부터 H24까지 변수를 모아
+# '시간대'와 '승객수'으로 구분하는 데이터 subway2 만들기
+# subway2 데이터의 날짜에 시간을 추가하기 ex) "2017-01-02 06:00:00"
+
+subway2 <- gather(subway_2017,"시간","고객",H05:H24)
+ymd_h(paste0(subway_2017$날짜,substr(subway2$시간,2,3)))
+
+
+# 문제2
+# subway_2017 데이터에서 월과 일을 month, day 변수명으로 추가하시오
+subway_2017$month <-month(subway_2017$날짜)
+subway_2017$day <-day(subway_2017$날짜)
+
+
+# 문제3
+# 위에서 추가한 변수들 기반으로 3월중 가장 많이 탑승한 시간은 몇시인가?
+subway_2017 %>%
+  filter(month == 3) %>%
+  select(H06:H24) %>%
+  apply(2,sum) %>%
+  data.frame()
+
+
+##############################
+####### 결측치 처리해보기!!
+data(airquality)
+head(airquality)
+
+
+# 1. airquality 데이터의 결측치 개수를 구하시오 (열별로)
+apply(X = airquality, MARGIN = 2, FUN = function(x){sum(is.na(x))})
+
+# 2. 결측치가 있는 행들을 제거한 후 각 열의 평균을 구하시오
+airquality2 <- na.omit(airquality)
+apply(airquality2,2,mean)
+
+# 3. 결측치는 변수의 중앙값으로 대체후 각 열의 평균을 출력하시오
+airquality[is.na(airquality$Ozone),"Ozone"] <- median(airquality$Ozone,na.rm=T)
+airquality[is.na(airquality$Solar.R),"Solar.R"] <- median(airquality$Solar.R,na.rm=T)
+
+apply(airquality,2,mean)

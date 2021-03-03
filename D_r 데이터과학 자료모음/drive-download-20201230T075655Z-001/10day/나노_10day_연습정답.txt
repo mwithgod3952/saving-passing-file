@@ -1,0 +1,124 @@
+## 1. 시각적 접근
+
+## workingday마다 시간에 따른 자전거 수요 시각화하기
+## (온도에 대해서 색으로 구분하기!)
+
+## (10분)
+
+#평일
+train %>%
+  filter(workingday == 1) %>%
+  ggplot(aes(hour, count, color = temp)) +
+  geom_point() +
+  scale_color_gradient(low = "#88d8b0", high = "#ff6f69") + ggtitle("Bike Count on Working Days")
+
+# position_jitter 은 퍼뜨리는 역할
+train %>%
+  filter(workingday == 1) %>%
+  ggplot(aes(hour, count, color = temp)) +
+  geom_point(position = position_jitter()) +
+  scale_color_gradient(low = "#88d8b0", high = "#ff6f69") + ggtitle("Bike Count on Working Days")
+
+#휴일
+train %>%
+  filter(workingday == 0) %>%
+  ggplot(aes(hour, count)) +
+  geom_point(position = position_jitter(), aes(color = temp)) +
+  scale_color_gradient(low = "#88d8b0", high = "#ff6f69") + ggtitle("Bike Count on Non-Working Days")
+
+
+
+##########################
+
+# 위와 같은 과정을 holiday에 따라서 확인하기
+
+# 1 시각화
+
+#평일
+train %>%
+  filter(holiday == 0) %>%
+  ggplot(aes(hour, count)) +
+  geom_point(position = position_jitter(),  aes(color = temp)) +
+  scale_color_gradient(low = "#88d8b0", high = "#ff6f69") + ggtitle("Bike Count on Working Days")
+
+#휴일
+train %>%
+  filter(holiday == 1) %>%
+  ggplot(aes(hour, count)) +
+  geom_point(position = position_jitter(w = 1, h = 0), aes(color = temp)) +
+  scale_color_gradient(low = "#88d8b0", high = "#ff6f69") + ggtitle("Bike Count on Non-Working Days")
+
+# 2 통계 검정
+
+var.test(count~holiday,data=train)
+t.test(count~holiday,data=train,var.equal = T)
+
+###########################
+
+
+# 그럼 이제 실제 데이터 분석 및 변형을 해보자
+
+# 1. 계절에 대해서 실제 그림을 그려보기
+# 시간별 대여 수량의 평균을 계절별로 나눠서 그리시오! 
+
+train %>%
+  group_by(season,hour) %>%
+  summarise(mean = mean(count)) %>%
+  ggplot(aes(x=hour,y=mean,group=season,color=season)) + geom_line()
+
+
+# 그림에서 이상한 점을 발견할 수 있을 것이다.
+# 이상한 점을 확인하고, 수정하여 다시 그리시오!
+
+# train %>%
+#   dplyr::select(season,month) %>%
+#   unique()
+# 
+# 
+# train %>%
+#   mutate(season_new = ifelse(month %in% c(3,4,5),1,
+#                              ifelse(month %in% c(6,7,8),2,
+#                                     ifelse(month %in% c(9,10,11),3,4)))) %>%
+#   group_by(season_new,hour) %>%
+#   summarise(mean = mean(count)) %>%
+#   ggplot(aes(x=hour,y=mean,group=factor(season_new),color=factor(season_new))) + geom_line()
+
+
+# 바람 속도에 대해서 전처리
+# 실제 바람속도를 히스토그램 그려보면 이상한 점을 발견할 수 있을것이다
+# 그 값을 바꿔보시오
+
+train %>%
+  ggplot(aes(x=windspeed)) + geom_histogram()
+
+summary(train$windspeed)
+# 0을 전처리 하기!
+# 중앙값으로 대체하기!
+
+# train[train$windspeed==0,"windspeed"] <- median(train$windspeed)
+
+#######################
+
+# F검정 연습하고 해석하기
+# weekday마다 count의 차이가 있는지 검정해보시오
+
+######## 코드 작성 #########
+
+# summary(aov(count~season,data=train))
+
+############################
+
+
+
+# 상관 관계 확인하기
+
+# 1.temp와 atemp는 얼마나 상관이 있는가?
+cor(train$temp,train$atemp)
+
+
+# 2.count와 가장 연관이 있는 변수는 어떤 변수인가? (registered , casual 제외)
+# chart.Correlation(train[,6:12], histogram=TRUE, pch=19)
+
+# 3.가장 영향력 있는 변수와의 그림을 그려보기
+# train %>%
+#   ggplot(aes(x=count,y=temp,color=count)) + geom_point()

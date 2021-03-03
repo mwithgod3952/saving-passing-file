@@ -1,0 +1,76 @@
+############### 연습문제 ###############
+
+data(iris)
+#1. iris에서 연속형 데이터를 갖고 상관관계를 구하고 Sepal.Length와 가장 상관있는 변수는 무엇인가?
+#(2가지 이상의 시각화를 그려보시오)
+
+pairs.panels(iris[,1:4])
+chart.Correlation(iris[,1:4], histogram=TRUE, pch=19)
+
+#####
+data(mtcars)
+head(mtcars)
+#mpg에서 qesc까지의 변수를 갖고 상관관계를 구하시오
+pairs.panels(mtcars[,1:7])
+chart.Correlation(mtcars[,1:7], histogram=TRUE, pch=19)
+
+
+##################################
+
+
+################## T검정 연습해보기 ###################
+
+# 1
+a = c(175, 168, 168, 190, 156, 181, 182, 175, 174, 179)
+b = c(185, 169, 173, 173, 188, 186, 175, 174, 179, 180)
+
+### 다음 데이터를 갖고 T검정을 하시오 (정규성 생략)
+
+var.test(a,b)
+t.test(a,b,var.equal = T)
+
+# 2
+data(mtcars)
+# am 변수에 따라 mpg가 차이가 있는지 확인하시오
+var.test(mtcars[mtcars$am==1,1],mtcars[mtcars$am==0,1])
+t.test(mtcars[mtcars$am==1,1],mtcars[mtcars$am==0,1],var.equal = T)
+
+######################################################
+
+
+################## F검정 연습해보기 ###################
+data(iris)
+#1. iris에서 Species마다 Sepal.Width의 차이가 있는지 확인하시오
+# 사후 검정과 해석을 적으시오
+
+bartlett.test(Sepal.Width~Species, data=iris)
+z1 <- aov(Sepal.Width~Species, data=iris)
+LDuncan(z1, "Species")
+
+
+#2 mtcars데이터에서 gear따라 mpg의 차이가 있는지 확인하시오
+# 사후 검정과 해석을 적으시오
+bartlett.test(mpg~gear, data=mtcars)
+z2 <- aov(mpg~gear, data=mtcars)
+LDuncan(z2, "gear")
+
+
+################## 카이제곱 연습해보기 ###################
+# 1
+
+data("survey")
+# survey 데티어에서 Sex변수와 Smoke가 연관이 있는지 검정하여라
+# 시각화 포함
+
+chisq.test(table(survey$Sex,survey$Smoke))
+mosaicplot(t(table(survey$Sex,survey$Smoke)),col=c("deepskyblue", "brown2"))
+
+# 2
+delivery = read.csv('SKT.csv', fileEncoding='UTF-8')
+head(delivery)
+# 요일별 업종의 차이가 있는지 검정하여라
+
+chisq.test(table(delivery$요일,delivery$업종))
+mosaicplot(t(table(delivery$요일,delivery$업종)),col=c("deepskyblue", "brown2"))
+
+#######################################################

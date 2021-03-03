@@ -1,0 +1,35 @@
+7일차_문제정답
+# [2015학년도 수능] 어느 연구소에서 토마토 모종을 심은 지 주가 지났을 때, 
+# 줄기의 길이를 조사한 결과 토마토 줄기의 길이는 평균이 
+# 30cm 표준편차가 2cm인 정규분포를 따른다고 한다. 
+# 이 연구소에서 토마토 모종을 심은 지 주가 지났을 때, 
+# 토마토 줄기 중 임의로 선택한 줄기의 길이가 27cm이상이고 32cm 이하일 확률을 
+# 오른쪽 표준정규분포표를 이용하여 구한 것은? [3점]
+
+
+Z1 = (27-30) / 2
+Z2 = (32-30) / 2
+
+pnorm(Z2,mean = 0, sd=1) - pnorm(Z1, mean=0, sd=1)
+
+
+ggplot(NULL) +
+  geom_line(aes(x = k1, y = p1)) +
+  geom_area(aes(x = ifelse(k1 > -1.5 & k1 <  1, k1, 0), y = p1),fill = 'royalblue',
+            alpha = 0.4) +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(-5,5, by = 1)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,0.45)) +
+  xlab("") + ylab("")
+
+
+(27-30.92) / 2
+
+
+#2
+data(mtcars)
+# mtcars 데이터에서 mpg는 평균 23이다 라고 말할 수 있는가?
+# 가설검정하여라
+
+Z3 = (23-mean(mtcars$mpg)) /sd(mtcars$mpg)
+pnorm(Z3,mean = 0, sd=1)
